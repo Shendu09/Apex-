@@ -13,8 +13,11 @@ import BuyerDashboard from './pages/BuyerDashboard';
 import BuyerProfile from './pages/BuyerProfile';
 import FarmersList from './pages/FarmersList';
 import BuyerProductView from './pages/BuyerProductView';
+import BuyerProductsList from './pages/BuyerProductsList';
 import CheckoutPage from './pages/CheckoutPage';
 import OrderHistory from './pages/OrderHistory';
+import PaymentPage from './pages/PaymentPage';
+import PaymentSuccess from './pages/PaymentSuccess';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -60,25 +63,25 @@ function App() {
       <Routes>
         <Route 
           path="/" 
+          element={<Navigate to="/language" />} 
+        />
+        <Route 
+          path="/language" 
+          element={<LanguageSelection onSelectLanguage={handleLanguageSelect} currentLanguage={language} />} 
+        />
+        <Route 
+          path="/login" 
           element={
             !user ? <LoginPage onLogin={handleLogin} /> : 
-            !language ? <Navigate to="/language" /> :
             !userType ? <Navigate to="/user-type" /> :
             userType === 'farmer' ? <Navigate to="/farmer/dashboard" /> :
             <Navigate to="/buyer/dashboard" />
           } 
         />
         <Route 
-          path="/language" 
-          element={
-            user ? <LanguageSelection onSelectLanguage={handleLanguageSelect} currentLanguage={language} /> : 
-            <Navigate to="/" />
-          } 
-        />
-        <Route 
           path="/user-type" 
           element={
-            user && language ? <UserTypeSelection onSelectType={handleUserTypeSelect} language={language} /> : 
+            language ? <UserTypeSelection onSelectType={handleUserTypeSelect} language={language} /> : 
             <Navigate to="/" />
           } 
         />
@@ -87,42 +90,42 @@ function App() {
         <Route 
           path="/farmer/dashboard" 
           element={
-            user && userType === 'farmer' ? <FarmerDashboard language={language} onLogout={handleLogout} /> : 
+            userType === 'farmer' ? <FarmerDashboard language={language} onLogout={handleLogout} /> : 
             <Navigate to="/" />
           } 
         />
         <Route 
           path="/farmer/profile" 
           element={
-            user && userType === 'farmer' ? <FarmerProfile language={language} /> : 
+            userType === 'farmer' ? <FarmerProfile language={language} /> : 
             <Navigate to="/" />
           } 
         />
         <Route 
           path="/farmer/categories" 
           element={
-            user && userType === 'farmer' ? <CategorySelection language={language} userType="farmer" /> : 
+            userType === 'farmer' ? <CategorySelection language={language} userType="farmer" /> : 
             <Navigate to="/" />
           } 
         />
         <Route 
           path="/farmer/items/:category" 
           element={
-            user && userType === 'farmer' ? <ItemsList language={language} userType="farmer" /> : 
+            userType === 'farmer' ? <ItemsList language={language} userType="farmer" /> : 
             <Navigate to="/" />
           } 
         />
         <Route 
           path="/farmer/product/:category/:item" 
           element={
-            user && userType === 'farmer' ? <ProductDetails language={language} /> : 
+            userType === 'farmer' ? <ProductDetails language={language} /> : 
             <Navigate to="/" />
           } 
         />
         <Route 
           path="/farmer/tracking" 
           element={
-            user && userType === 'farmer' ? <OrderTracking language={language} userType="farmer" /> : 
+            userType === 'farmer' ? <OrderTracking language={language} userType="farmer" /> : 
             <Navigate to="/" />
           } 
         />
@@ -131,58 +134,73 @@ function App() {
         <Route 
           path="/buyer/dashboard" 
           element={
-            user && userType === 'buyer' ? <BuyerDashboard language={language} onLogout={handleLogout} /> : 
+            userType === 'buyer' ? <BuyerDashboard language={language} onLogout={handleLogout} /> : 
             <Navigate to="/" />
           } 
         />
         <Route 
           path="/buyer/profile" 
           element={
-            user && userType === 'buyer' ? <BuyerProfile language={language} /> : 
+            userType === 'buyer' ? <BuyerProfile language={language} /> : 
             <Navigate to="/" />
           } 
         />
         <Route 
           path="/buyer/farmers" 
           element={
-            user && userType === 'buyer' ? <FarmersList language={language} /> : 
+            userType === 'buyer' ? <FarmersList language={language} /> : 
+            <Navigate to="/" />
+          } 
+        />
+        <Route 
+          path="/buyer/products" 
+          element={
+            userType === 'buyer' ? <BuyerProductsList language={language} /> : 
             <Navigate to="/" />
           } 
         />
         <Route 
           path="/buyer/categories" 
           element={
-            user && userType === 'buyer' ? <CategorySelection language={language} userType="buyer" /> : 
+            userType === 'buyer' ? <CategorySelection language={language} userType="buyer" /> : 
             <Navigate to="/" />
           } 
         />
         <Route 
           path="/buyer/items/:category" 
           element={
-            user && userType === 'buyer' ? <ItemsList language={language} userType="buyer" /> : 
+            userType === 'buyer' ? <ItemsList language={language} userType="buyer" /> : 
             <Navigate to="/" />
           } 
         />
         <Route 
           path="/buyer/product/:farmerId/:productId" 
           element={
-            user && userType === 'buyer' ? <BuyerProductView language={language} /> : 
+            userType === 'buyer' ? <BuyerProductView language={language} /> : 
             <Navigate to="/" />
           } 
         />
         <Route 
           path="/buyer/checkout" 
           element={
-            user && userType === 'buyer' ? <CheckoutPage language={language} /> : 
+            userType === 'buyer' ? <CheckoutPage language={language} /> : 
             <Navigate to="/" />
           } 
         />
         <Route 
           path="/buyer/orders" 
           element={
-            user && userType === 'buyer' ? <OrderHistory language={language} /> : 
+            userType === 'buyer' ? <OrderHistory language={language} /> : 
             <Navigate to="/" />
           } 
+        />
+        <Route 
+          path="/payment" 
+          element={<PaymentPage language={language} />} 
+        />
+        <Route 
+          path="/payment-success" 
+          element={<PaymentSuccess language={language} userType={userType} />} 
         />
       </Routes>
     </Router>

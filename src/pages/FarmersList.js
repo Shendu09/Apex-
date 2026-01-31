@@ -16,8 +16,9 @@ const FarmersList = ({ language }) => {
       rating: 4.8,
       reviews: 45,
       bankAccount: '1234567890',
-      specialties: ['Vegetables', 'Fruits'],
+      specialties: ['Fresh Vegetables', 'Leafy Greens'],
       verified: true,
+      products: ['Tomato', 'Onion', 'Potato', 'Spinach', 'Cabbage']
     },
     {
       id: 2,
@@ -28,8 +29,9 @@ const FarmersList = ({ language }) => {
       rating: 4.6,
       reviews: 32,
       bankAccount: '0987654321',
-      specialties: ['Millets', 'Grains'],
+      specialties: ['Organic Millets', 'Traditional Grains'],
       verified: true,
+      products: ['Pearl Millet', 'Finger Millet', 'Rice', 'Wheat', 'Green Gram']
     },
     {
       id: 3,
@@ -40,8 +42,48 @@ const FarmersList = ({ language }) => {
       rating: 4.9,
       reviews: 67,
       bankAccount: '1122334455',
-      specialties: ['Organic Vegetables'],
+      specialties: ['Seasonal Fruits', 'Exotic Produce'],
       verified: true,
+      products: ['Mango', 'Banana', 'Apple', 'Pomegranate', 'Dragon Fruit']
+    },
+    {
+      id: 4,
+      name: 'Lakshmi Devi',
+      photo: null,
+      location: 'Hyderabad, TS',
+      distance: '4.1 km',
+      rating: 4.7,
+      reviews: 38,
+      bankAccount: '5566778899',
+      specialties: ['Root Vegetables', 'Gourds'],
+      verified: true,
+      products: ['Carrot', 'Beetroot', 'Bottle Gourd', 'Bitter Gourd', 'Pumpkin']
+    },
+    {
+      id: 5,
+      name: 'Krishna Murthy',
+      photo: null,
+      location: 'Chennai, TN',
+      distance: '6.3 km',
+      rating: 4.5,
+      reviews: 28,
+      bankAccount: '9988776655',
+      specialties: ['Citrus Fruits', 'Tropical Produce'],
+      verified: true,
+      products: ['Orange', 'Watermelon', 'Papaya', 'Guava', 'Pineapple']
+    },
+    {
+      id: 6,
+      name: 'Vijay Singh',
+      photo: null,
+      location: 'Pune, MH',
+      distance: '7.8 km',
+      rating: 4.8,
+      reviews: 52,
+      bankAccount: '4455667788',
+      specialties: ['Premium Vegetables', 'Herbs'],
+      verified: true,
+      products: ['Capsicum', 'Brinjal', 'Cauliflower', 'Green Chilli', 'Cucumber']
     },
   ]);
 

@@ -1,27 +1,60 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { authService } from '../services/authService';
 
 const LoginPage = ({ onLogin }) => {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [otp, setOtp] = useState('');
   const [step, setStep] = useState('phone');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const handleSendOTP = (e) => {
+  const handleSendOTP = async (e) => {
     e.preventDefault();
     if (phoneNumber.length === 10) {
-      // Simulate sending OTP
-      setStep('otp');
-      // Auto-fill OTP for demo
-      setTimeout(() => setOtp('123456'), 1000);
+      setLoading(true);
+      setError('');
+      try {
+        const result = await authService.sendOTP(phoneNumber);
+        setStep('otp');
+        // Show OTP in alert for demo (in production, it's sent via SMS)
+        if (result.otp) {
+          alert(`Demo OTP: ${result.otp}\n\n(In production, this will be sent via SMS)`);
+        }
+      } catch (err) {
+        setError(err.response?.data?.message || 'Failed to send OTP. Please try again.');
+        console.error('OTP send error:', err);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
-  const handleVerifyOTP = (e) => {
+  const handleVerifyOTP = async (e) => {
     e.preventDefault();
-    if (otp === '123456' || otp.length === 6) {
-      onLogin(phoneNumber);
-      navigate('/language');
+    if (otp.length === 6) {
+      setLoading(true);
+      setError('');
+      try {
+        // For now, just verify OTP - don't send userType and language yet
+        // They will be selected in the next screens
+        await authService.verifyOTP(
+          phoneNumber,
+          otp,
+          undefined, // userType will be selected on next page
+          undefined  // language will be selected on next page
+        );
+        // Call onLogin to update phone number in App state
+        onLogin(phoneNumber);
+        // Navigate to language selection first
+        navigate('/language');
+      } catch (err) {
+        setError(err.response?.data?.message || 'Invalid OTP. Please try again.');
+        console.error('OTP verify error:', err);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -43,6 +76,11 @@ const LoginPage = ({ onLogin }) => {
 
         {/* Login Card */}
         <div className="bg-white rounded-2xl shadow-xl p-8">
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
+              {error}
+            </div>
+          )}
           {step === 'phone' ? (
             <form onSubmit={handleSendOTP}>
               <h2 className="text-2xl font-semibold text-gray-800 mb-6 text-center">Login</h2>
@@ -63,9 +101,10 @@ const LoginPage = ({ onLogin }) => {
               </div>
               <button
                 type="submit"
-                className="w-full bg-farm-green hover:bg-farm-dark-green text-white font-semibold py-4 rounded-lg transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all"
+                disabled={loading || phoneNumber.length !== 10}
+                className="w-full bg-farm-green hover:bg-farm-dark-green text-white font-semibold py-4 rounded-lg transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Send OTP
+                {loading ? 'Sending...' : 'Send OTP'}
               </button>
             </form>
           ) : (
@@ -85,15 +124,16 @@ const LoginPage = ({ onLogin }) => {
                 />
               </div>
               <button
-                type="submit"
-                className="w-full bg-farm-green hover:bg-farm-dark-green text-white font-semibold py-4 rounded-lg transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all"
+                disabled={loading || otp.length !== 6}
+                className="w-full bg-farm-green hover:bg-farm-dark-green text-white font-semibold py-4 rounded-lg transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Verify OTP
+                {loading ? 'Verifying...' : 'Verify OTP'}
               </button>
               <button
                 type="button"
-                onClick={() => setStep('phone')}
-                className="w-full mt-3 text-farm-green hover:text-farm-dark-green font-medium"
+                onClick={() => { setStep('phone'); setOtp(''); setError(''); }}
+                disabled={loading}
+                className="w-full mt-3 text-farm-green hover:text-farm-dark-green font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Change Number
               </button>

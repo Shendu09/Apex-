@@ -20,24 +20,19 @@ const CheckoutPage = ({ language }) => {
 
   const handlePayment = () => {
     if (order) {
-      const completedOrder = {
-        ...order,
-        paymentMethod,
-        paymentStatus: 'completed',
-        orderDate: new Date().toISOString(),
-        orderId: `ORD${Date.now()}`
-      };
-      
-      // Save to order history
-      const orderHistory = JSON.parse(localStorage.getItem('orderHistory') || '[]');
-      orderHistory.push(completedOrder);
-      localStorage.setItem('orderHistory', JSON.stringify(orderHistory));
-      
-      // Clear current order
-      localStorage.removeItem('currentOrder');
-      
-      alert(`Payment of ₹${order.totalPrice} successful! Order ID: ${completedOrder.orderId}`);
-      navigate('/buyer/orders');
+      // Navigate to payment page with order data
+      navigate('/payment', {
+        state: {
+          items: [{
+            name: order.name,
+            quantity: order.quantity,
+            price: order.price
+          }],
+          subtotal: order.totalPrice,
+          deliveryFee: 0,
+          total: order.totalPrice
+        }
+      });
     }
   };
 
@@ -63,7 +58,17 @@ const CheckoutPage = ({ language }) => {
         <div className="bg-white rounded-xl shadow-lg p-6 mb-4">
           <h2 className="text-xl font-bold text-gray-800 mb-4">Order Summary</h2>
           <div className="flex items-center space-x-4 mb-4 pb-4 border-b">
-            <div className="text-6xl">{order.emoji}</div>
+            <div className="w-24 h-24 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+              <img 
+                src={order.image || order.productPhoto} 
+                alt={order.name}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = 'https://via.placeholder.com/200x200/22c55e/ffffff?text=' + order.name;
+                }}
+              />
+            </div>
             <div className="flex-1">
               <h3 className="font-bold text-lg">{order.name}</h3>
               <p className="text-gray-600">{order.quantity} {order.unit} × ₹{order.price}</p>

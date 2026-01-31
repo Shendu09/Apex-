@@ -92,18 +92,18 @@ const BuyerDashboard = ({ language, onLogout }) => {
         {/* Quick Actions */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           <button
+            onClick={() => navigate('/buyer/products')}
+            className="p-6 bg-gradient-to-br from-red-400 to-red-600 rounded-xl text-white hover:shadow-xl transform hover:-translate-y-1 transition-all"
+          >
+            <div className="text-4xl mb-2">🛍️</div>
+            <div className="font-semibold">Shop Now</div>
+          </button>
+          <button
             onClick={() => navigate('/buyer/farmers')}
             className="p-6 bg-gradient-to-br from-green-400 to-green-600 rounded-xl text-white hover:shadow-xl transform hover:-translate-y-1 transition-all"
           >
             <div className="text-4xl mb-2">👨‍🌾</div>
             <div className="font-semibold">{t('nearbyFarmers')}</div>
-          </button>
-          <button
-            onClick={() => navigate('/buyer/categories')}
-            className="p-6 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl text-white hover:shadow-xl transform hover:-translate-y-1 transition-all"
-          >
-            <div className="text-4xl mb-2">🛒</div>
-            <div className="font-semibold">{t('categories')}</div>
           </button>
           <button
             onClick={() => navigate('/buyer/orders')}
@@ -126,16 +126,32 @@ const BuyerDashboard = ({ language, onLogout }) => {
           <h3 className="text-xl font-bold text-gray-800 mb-4">{t('fresh')} Products Today</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
-              { name: 'Tomatoes', emoji: '🍅', price: '₹30/kg', farmer: 'Ramesh' },
-              { name: 'Onions', emoji: '🧅', price: '₹40/kg', farmer: 'Suresh' },
-              { name: 'Potatoes', emoji: '🥔', price: '₹25/kg', farmer: 'Ganesh' },
-              { name: 'Carrots', emoji: '🥕', price: '₹35/kg', farmer: 'Mahesh' },
+              { name: 'Tomatoes', image: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=200&h=200&fit=crop', price: '₹30/kg', farmer: 'Ramesh Kumar' },
+              { name: 'Pearl Millet', image: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=200&h=200&fit=crop', price: '₹55/kg', farmer: 'Suresh Reddy' },
+              { name: 'Fresh Mango', image: 'https://images.unsplash.com/photo-1553279768-865429fa0078?w=200&h=200&fit=crop', price: '₹120/kg', farmer: 'Ganesh Patel' },
+              { name: 'Carrots', image: 'https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?w=200&h=200&fit=crop', price: '₹35/kg', farmer: 'Lakshmi Devi' },
+              { name: 'Fresh Orange', image: 'https://images.unsplash.com/photo-1580052614034-c55d20bfee3b?w=200&h=200&fit=crop', price: '₹80/kg', farmer: 'Krishna Murthy' },
+              { name: 'Capsicum', image: 'https://images.unsplash.com/photo-1563565375-f3fdfdbefa83?w=200&h=200&fit=crop', price: '₹60/kg', farmer: 'Vijay Singh' },
+              { name: 'Fresh Spinach', image: 'https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=200&h=200&fit=crop', price: '₹25/kg', farmer: 'Ramesh Kumar' },
+              { name: 'Finger Millet', image: 'https://images.unsplash.com/photo-1601039641847-7857b994d704?w=200&h=200&fit=crop', price: '₹50/kg', farmer: 'Suresh Reddy' },
             ].map((product, index) => (
-              <div key={index} className="bg-gray-50 rounded-lg p-4 text-center hover:shadow-lg transition-shadow cursor-pointer">
-                <div className="text-5xl mb-2">{product.emoji}</div>
-                <p className="font-semibold">{product.name}</p>
-                <p className="text-green-600 font-bold">{product.price}</p>
-                <p className="text-xs text-gray-600">by {product.farmer}</p>
+              <div key={index} className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow cursor-pointer">
+                <div className="h-32 bg-gray-100">
+                  <img 
+                    src={product.image} 
+                    alt={product.name}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = 'https://via.placeholder.com/200x200/22c55e/ffffff?text=' + product.name;
+                    }}
+                  />
+                </div>
+                <div className="p-3 text-center">
+                  <p className="font-semibold text-sm">{product.name}</p>
+                  <p className="text-green-600 font-bold">{product.price}</p>
+                  <p className="text-xs text-gray-600">by {product.farmer}</p>
+                </div>
               </div>
             ))}
           </div>

@@ -16,9 +16,9 @@ const FarmerDashboard = ({ language, onLogout }) => {
   ];
 
   const stats = [
-    { label: t('dueOrders'), value: '5', color: 'bg-yellow-500' },
-    { label: t('delivered'), value: '23', color: 'bg-green-500' },
-    { label: t('payments'), value: '₹12,450', color: 'bg-blue-500' },
+    { label: t('dueOrders'), value: '4', color: 'bg-yellow-500', path: '/farmer/tracking?filter=due' },
+    { label: t('delivered'), value: '1', color: 'bg-green-500', path: '/farmer/tracking?filter=delivered' },
+    { label: t('payments'), value: '₹12,450', color: 'bg-blue-500', path: '/payment' },
   ];
 
   return (
@@ -82,13 +82,17 @@ const FarmerDashboard = ({ language, onLogout }) => {
           {/* Stats Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             {stats.map((stat, index) => (
-              <div key={index} className="bg-white rounded-xl shadow-lg p-6">
+              <button
+                key={index}
+                onClick={() => navigate(stat.path)}
+                className="bg-white rounded-xl shadow-lg p-6 hover:shadow-2xl transform hover:-translate-y-1 transition-all text-left"
+              >
                 <div className={`${stat.color} w-12 h-12 rounded-full flex items-center justify-center mb-4`}>
                   <span className="text-white text-2xl font-bold">{stat.value[0]}</span>
                 </div>
                 <p className="text-gray-600 text-sm">{stat.label}</p>
                 <p className="text-2xl font-bold text-gray-800">{stat.value}</p>
-              </div>
+              </button>
             ))}
           </div>
         </div>

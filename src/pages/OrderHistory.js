@@ -18,7 +18,7 @@ const OrderHistory = ({ language }) => {
         {
           orderId: 'ORD1738400000001',
           name: 'Fresh Tomatoes',
-          emoji: '🍅',
+          image: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=200&h=200&fit=crop',
           quantity: 5,
           unit: 'kg',
           totalPrice: 150,
@@ -29,7 +29,7 @@ const OrderHistory = ({ language }) => {
         {
           orderId: 'ORD1738400000002',
           name: 'Onions',
-          emoji: '🧅',
+          image: 'https://images.unsplash.com/photo-1618512496248-a07fe83aa8cb?w=200&h=200&fit=crop',
           quantity: 3,
           unit: 'kg',
           totalPrice: 120,
@@ -100,7 +100,17 @@ const OrderHistory = ({ language }) => {
                 </div>
 
                 <div className="flex items-center space-x-4 mb-4">
-                  <div className="text-5xl">{order.emoji}</div>
+                  <div className="w-20 h-20 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                    <img 
+                      src={order.image} 
+                      alt={order.name}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = 'https://via.placeholder.com/200x200/22c55e/ffffff?text=' + order.name;
+                      }}
+                    />
+                  </div>
                   <div className="flex-1">
                     <h3 className="font-bold text-lg">{order.name}</h3>
                     <p className="text-gray-600">{order.quantity} {order.unit}</p>

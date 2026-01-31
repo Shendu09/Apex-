@@ -8,7 +8,7 @@ const BuyerProductView = ({ language }) => {
 
   const [product] = useState({
     name: 'Fresh Tomatoes',
-    emoji: '🍅',
+    image: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=600&h=600&fit=crop',
     price: 30,
     unit: 'kg',
     available: 100,
@@ -24,7 +24,7 @@ const BuyerProductView = ({ language }) => {
       bankAccount: '1234567890',
       upiId: 'ramesh@upi'
     },
-    productPhoto: null,
+    productPhoto: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=600&h=600&fit=crop',
   });
 
   const [quantity, setQuantity] = useState(1);
@@ -71,14 +71,22 @@ const BuyerProductView = ({ language }) => {
 
       <main className="p-4 max-w-2xl mx-auto pb-24">
         {/* Product Image */}
-        <div className="bg-white rounded-xl shadow-lg p-8 mb-4 text-center">
-          {product.productPhoto ? (
-            <img src={product.productPhoto} alt={product.name} className="max-h-64 mx-auto rounded-lg" />
-          ) : (
-            <div className="text-9xl">{product.emoji}</div>
-          )}
-          <div className="mt-4 inline-block px-4 py-2 bg-green-100 text-green-700 rounded-full text-sm font-semibold">
-            {t('fresh')} • {t('available')}
+        <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-4">
+          <div className="h-80 bg-gray-100">
+            <img 
+              src={product.productPhoto || product.image} 
+              alt={product.name} 
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = 'https://via.placeholder.com/600x600/22c55e/ffffff?text=' + product.name;
+              }}
+            />
+          </div>
+          <div className="p-4 text-center">
+            <div className="inline-block px-4 py-2 bg-green-100 text-green-700 rounded-full text-sm font-semibold">
+              {t('fresh')} • {t('available')}
+            </div>
           </div>
         </div>
 

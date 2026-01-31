@@ -1,37 +1,104 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getTranslation } from '../translations';
+import { userService } from '../services/userService';
 
 const FarmerProfile = ({ language }) => {
   const navigate = useNavigate();
   const t = (key) => getTranslation(language, key);
   
   const [isEditing, setIsEditing] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState({
-    name: 'Ramesh Kumar',
-    age: '45',
-    place: 'Guntur, Andhra Pradesh',
-    bankAccount: '1234567890',
-    upiId: 'ramesh@upi',
+    name: '',
+    age: '',
+    place: '',
+    bankAccount: '',
+    upiId: '',
     photo: null,
   });
 
-  const handlePhotoUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setProfile({ ...profile, photo: reader.result });
-      };
-      reader.readAsDataURL(file);
+  useEffect(() => {
+    loadProfile();
+  }, []);
+
+  const loadProfile = async () => {
+    try {
+      const userData = await userService.getProfile();
+      setProfile({
+        name: userData.profile?.name || '',
+        age: userData.profile?.age || '',
+        place: userData.profile?.place || '',
+        bankAccount: userData.payment?.bankAccount || '',
+        upiId: userData.payment?.upiId || '',
+        photo: userData.profile?.photo || null,
+      });
+    } catch (error) {
+      console.error('Error loading profile:', error);
+      // Load from localStorage as fallback
+      const stored = localStorage.getItem('farmerProfile');
+      if (stored) {
+        setProfile(JSON.parse(stored));
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleSave = () => {
-    localStorage.setItem('farmerProfile', JSON.stringify(profile));
-    setIsEditing(false);
-    alert('Profile saved successfully!');
+  const handlePhotoUpload = async (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      try {
+        const result = await userService.uploadPhoto(file);
+        setProfile({ ...profile, photo: result.photoUrl });
+      } catch (error) {
+        console.error('Error uploading photo:', error);
+        // Fallback to local preview
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setProfile({ ...profile, photo: reader.result });
+        };
+        reader.readAsDataURL(file);
+      }
+    }
   };
+
+  const handleSave = async () => {
+    setIsEditing(false);
+    try {
+      await userService.updateProfile({
+        profile: {
+          name: profile.name,
+          age: parseInt(profile.age),
+          place: profile.place,
+        },
+        payment: {
+          bankAccount: profile.bankAccount,
+          upiId: profile.upiId,
+        }
+      });
+      localStorage.setItem('farmerProfile', JSON.stringify(profile));
+      setIsEditing(false);
+      alert('Profile saved successfully!');
+    } catch (error) {
+      console.error('Error saving profile:', error);
+      // Fallback to localStorage
+      localStorage.setItem('farmerProfile', JSON.stringify(profile));
+      setIsEditing(false);
+      alert('Profile saved locally!');
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-farm-green mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading profile...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
