@@ -5,7 +5,10 @@ import { getTranslation } from '../translations';
 const BuyerProductsList = ({ language }) => {
   const navigate = useNavigate();
   const t = (key) => getTranslation(language, key);
-  const [cart, setCart] = useState({});
+  const [cart, setCart] = useState(() => {
+    const savedCart = localStorage.getItem('cart');
+    return savedCart ? JSON.parse(savedCart) : {};
+  });
   const [selectedCategory, setSelectedCategory] = useState('all');
 
   // Sample products with farmer info and ratings
@@ -152,22 +155,52 @@ const BuyerProductsList = ({ language }) => {
     : products.filter(p => p.category === selectedCategory);
 
   const addToCart = (productId) => {
-    setCart(prev => ({
-      ...prev,
-      [productId]: (prev[productId] || 0) + 1
-    }));
+    const updatedCart = {
+      ...cart,
+      [productId]: (cart[productId] || 0) + 1
+    };
+    setCart(updatedCart);
+    // Save to localStorage
+    localStorage.setItem('cart', JSON.stringify(updatedCart));
+    // Also save cart items details
+    const product = products.find(p => p.id === productId);
+    const cartItems = JSON.parse(localStorage.getItem('cartItems') || '[]');
+    const existingItem = cartItems.find(item => item.id === productId);
+    
+    if (existingItem) {
+      existingItem.quantity = updatedCart[productId];
+    } else {
+      cartItems.push({
+        ...product,
+        quantity: 1
+      });
+    }
+    localStorage.setItem('cartItems', JSON.stringify(cartItems));
   };
 
   const removeFromCart = (productId) => {
-    setCart(prev => {
-      const newCart = { ...prev };
-      if (newCart[productId] > 1) {
-        newCart[productId]--;
+    const updatedCart = { ...cart };
+    if (updatedCart[productId] > 1) {
+      updatedCart[productId]--;
+    } else {
+      delete updatedCart[productId];
+    }
+    setCart(updatedCart);
+    // Save to localStorage
+    localStorage.setItem('cart', JSON.stringify(updatedCart));
+    // Update cart items details
+    const cartItems = JSON.parse(localStorage.getItem('cartItems') || '[]');
+    const existingItem = cartItems.find(item => item.id === productId);
+    
+    if (existingItem) {
+      if (updatedCart[productId]) {
+        existingItem.quantity = updatedCart[productId];
       } else {
-        delete newCart[productId];
+        const index = cartItems.findIndex(item => item.id === productId);
+        cartItems.splice(index, 1);
       }
-      return newCart;
-    });
+    }
+    localStorage.setItem('cartItems', JSON.stringify(cartItems));
   };
 
   const getTotalItems = () => {
@@ -254,22 +287,22 @@ const BuyerProductsList = ({ language }) => {
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {filteredProducts.map(product => (
-            <div key={product.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all">
+            <div key={product.id} className="bg-white rounded-lg shadow hover:shadow-xl transition-all border border-gray-200">
               {/* Product Image */}
               <div className="relative">
                 <img
                   src={product.image}
                   alt={product.name}
-                  className="w-full h-48 object-cover cursor-pointer"
+                  className="w-full h-48 object-cover rounded-t-lg cursor-pointer"
                   onClick={() => navigate(`/buyer/product/${product.farmerId}/${product.id}`)}
                 />
                 {product.discount && (
-                  <div className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded text-xs font-bold">
+                  <div className="absolute top-2 left-2 bg-green-600 text-white px-2 py-1 rounded text-xs font-bold">
                     {product.discount}% OFF
                   </div>
                 )}
                 {product.organic && (
-                  <div className="absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded text-xs font-bold">
+                  <div className="absolute top-2 right-2 bg-green-600 text-white px-2 py-1 rounded text-xs font-bold">
                     🌿 Organic
                   </div>
                 )}
@@ -277,65 +310,73 @@ const BuyerProductsList = ({ language }) => {
 
               {/* Product Info */}
               <div className="p-3">
-                <h3 className="font-bold text-gray-800 mb-1 line-clamp-1">{product.name}</h3>
-                
-                {/* Farmer Info */}
-                <div className="flex items-center text-xs text-gray-600 mb-2">
-                  <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
-                  </svg>
-                  <span className="truncate">{product.farmer}</span>
-                </div>
-
-                {/* Rating & Distance */}
-                <div className="flex items-center justify-between text-xs mb-2">
-                  <div className="flex items-center">
-                    <span className="text-yellow-500 mr-1">⭐</span>
-                    <span className="font-semibold">{product.rating}</span>
-                    <span className="text-gray-500 ml-1">({product.reviews})</span>
-                  </div>
-                  <span className="text-gray-600">📍 {product.distance}</span>
-                </div>
-
-                {/* Quality Badge */}
-                <div className="mb-3">
-                  <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full font-semibold">
-                    {product.quality}
+                {/* Delivery Time Badge */}
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-full flex items-center">
+                    <span className="w-2 h-2 bg-yellow-500 rounded-full mr-1"></span>
+                    9 MINS
                   </span>
                 </div>
 
-                {/* Price & Add to Cart */}
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-lg font-bold text-farm-green">₹{product.price}</p>
-                    <p className="text-xs text-gray-500">per {product.unit}</p>
-                  </div>
-                  
-                  {cart[product.id] ? (
-                    <div className="flex items-center space-x-2 bg-farm-green rounded-lg">
-                      <button
-                        onClick={() => removeFromCart(product.id)}
-                        className="text-white px-2 py-1 hover:bg-farm-dark-green rounded-l-lg"
-                      >
-                        -
-                      </button>
-                      <span className="text-white font-bold">{cart[product.id]}</span>
-                      <button
-                        onClick={() => addToCart(product.id)}
-                        className="text-white px-2 py-1 hover:bg-farm-dark-green rounded-r-lg"
-                      >
-                        +
-                      </button>
-                    </div>
-                  ) : (
-                    <button
-                      onClick={() => addToCart(product.id)}
-                      className="bg-farm-green hover:bg-farm-dark-green text-white px-4 py-2 rounded-lg font-semibold text-sm transition-all"
-                    >
-                      Add
-                    </button>
+                {/* Brand/Farmer */}
+                <p className="text-xs text-gray-500 mb-1">{product.farmer}</p>
+                
+                {/* Product Name */}
+                <h3 className="font-semibold text-gray-800 mb-2 line-clamp-2 h-10">{product.name}</h3>
+                
+                {/* Quantity Selector */}
+                <select className="w-full border border-gray-300 rounded px-2 py-1 text-sm mb-2 focus:outline-none focus:ring-1 focus:ring-green-500">
+                  <option>250 g</option>
+                  <option>500 g</option>
+                  <option>1 kg</option>
+                </select>
+
+                {/* Price */}
+                <div className="flex items-center space-x-2 mb-3">
+                  <span className="text-lg font-bold text-gray-800">₹{product.price}</span>
+                  {product.discount && (
+                    <span className="text-sm text-gray-400 line-through">₹{Math.round(product.price / (1 - product.discount / 100))}</span>
                   )}
                 </div>
+
+                {/* Har Din Sasta Button */}
+                <button className="w-full bg-green-50 border border-green-600 text-green-700 py-2 rounded text-sm font-semibold mb-2 hover:bg-green-100 transition-colors flex items-center justify-center">
+                  <span className="mr-1">✓</span>
+                  Har Din Sasta!
+                </button>
+
+                {/* Add to Cart */}
+                {cart[product.id] ? (
+                  <div className="flex items-center justify-between border-2 border-red-500 rounded">
+                    <button
+                      onClick={() => removeFromCart(product.id)}
+                      className="text-red-500 px-4 py-2 hover:bg-red-50 rounded-l font-bold text-lg"
+                    >
+                      −
+                    </button>
+                    <span className="text-red-500 font-bold text-lg">{cart[product.id]}</span>
+                    <button
+                      onClick={() => addToCart(product.id)}
+                      className="text-red-500 px-4 py-2 hover:bg-red-50 rounded-r font-bold text-lg"
+                    >
+                      +
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => addToCart(product.id)}
+                    className="w-full border-2 border-red-500 text-red-500 py-2 rounded font-bold hover:bg-red-50 transition-colors"
+                  >
+                    Add
+                  </button>
+                )}
+
+                {/* Bookmark Icon */}
+                <button className="absolute top-3 right-3 bg-white rounded-full p-2 shadow hover:shadow-lg">
+                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                  </svg>
+                </button>
               </div>
             </div>
           ))}

@@ -188,6 +188,13 @@ function App() {
           } 
         />
         <Route 
+          path="/buyer/cart" 
+          element={
+            userType === 'buyer' ? <CheckoutPage language={language} /> : 
+            <Navigate to="/" />
+          } 
+        />
+        <Route 
           path="/buyer/orders" 
           element={
             userType === 'buyer' ? <OrderHistory language={language} /> : 
