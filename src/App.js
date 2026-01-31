@@ -5,6 +5,8 @@ import LanguageSelection from './pages/LanguageSelection';
 import UserTypeSelection from './pages/UserTypeSelection';
 import FarmerDashboard from './pages/FarmerDashboard';
 import FarmerProfile from './pages/FarmerProfile';
+import FarmerProductManagement from './pages/FarmerProductManagement';
+import FarmerOrders from './pages/FarmerOrders';
 import CategorySelection from './pages/CategorySelection';
 import ItemsList from './pages/ItemsList';
 import ProductDetails from './pages/ProductDetails';
@@ -98,6 +100,20 @@ function App() {
           path="/farmer/profile" 
           element={
             userType === 'farmer' ? <FarmerProfile language={language} /> : 
+            <Navigate to="/" />
+          } 
+        />
+        <Route 
+          path="/farmer/products" 
+          element={
+            userType === 'farmer' ? <FarmerProductManagement language={language} /> : 
+            <Navigate to="/" />
+          } 
+        />
+        <Route 
+          path="/farmer/orders" 
+          element={
+            userType === 'farmer' ? <FarmerOrders language={language} /> : 
             <Navigate to="/" />
           } 
         />

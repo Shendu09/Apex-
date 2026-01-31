@@ -23,16 +23,18 @@ const OrderTracking = ({ language, userType }) => {
   const t = (key) => getTranslation(language, key);
   const [showMap, setShowMap] = useState({});
   const [activeFilter, setActiveFilter] = useState(searchParams.get('filter') || 'all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [orders, setOrders] = useState([]);
 
-  // Update filter when URL parameter changes
+  // Load orders from localStorage
   useEffect(() => {
-    const filterParam = searchParams.get('filter');
-    if (filterParam) {
-      setActiveFilter(filterParam);
-    }
-  }, [searchParams]);
-
-  const [orders] = useState([
+    const loadOrders = () => {
+      const storageKey = userType === 'farmer' ? 'farmerOrders' : 'buyerOrders';
+      const storedOrders = JSON.parse(localStorage.getItem(storageKey) || '[]');
+      
+      // If no orders in localStorage, use dummy data
+      if (storedOrders.length === 0) {
+        setOrders([
     { 
       id: 1, 
       item: 'Tomatoes', 
@@ -84,14 +86,43 @@ const OrderTracking = ({ language, userType }) => {
       location: { lat: 22.5726, lng: 88.3639 }
     },
   ]);
+      } else {
+        setOrders(storedOrders);
+      }
+    };
 
-  // Filter orders based on active filter
+    loadOrders();
+  }, [userType]);
+
+  // Update filter when URL parameter changes
+  useEffect(() => {
+    const filterParam = searchParams.get('filter');
+    if (filterParam) {
+      setActiveFilter(filterParam);
+    }
+  }, [searchParams]);
+
+  // Filter orders based on active filter and search query
   const filteredOrders = orders.filter(order => {
-    if (activeFilter === 'all') return true;
-    if (activeFilter === 'due') return order.status === 'pending' || order.status === 'in-transit';
-    if (activeFilter === 'in-transit') return order.status === 'in-transit';
-    if (activeFilter === 'delivered') return order.status === 'delivered';
-    return true;
+    // Apply filter
+    let matchesFilter = true;
+    if (activeFilter === 'all') matchesFilter = true;
+    else if (activeFilter === 'due') matchesFilter = order.status === 'pending' || order.status === 'in-transit';
+    else if (activeFilter === 'in-transit') matchesFilter = order.status === 'in-transit';
+    else if (activeFilter === 'delivered') matchesFilter = order.status === 'delivered';
+
+    // Apply search query
+    if (!searchQuery.trim()) return matchesFilter;
+
+    const query = searchQuery.toLowerCase();
+    const matchesSearch = 
+      order.id?.toString().includes(query) ||
+      order.item?.toLowerCase().includes(query) ||
+      order.customer?.toLowerCase().includes(query) ||
+      order.customerName?.toLowerCase().includes(query) ||
+      order.address?.toLowerCase().includes(query);
+
+    return matchesFilter && matchesSearch;
   });
 
   const getStatusColor = (status) => {
@@ -128,6 +159,37 @@ const OrderTracking = ({ language, userType }) => {
       </header>
 
       <main className="p-4 max-w-6xl mx-auto">
+        {/* Search Bar */}
+        <div className="mb-4">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Search by Order ID, Item, or Customer..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full px-4 py-3 pl-12 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-farm-green"
+            />
+            <svg 
+              className="absolute left-4 top-3.5 w-5 h-5 text-gray-400" 
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute right-4 top-3.5 text-gray-400 hover:text-gray-600"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            )}
+          </div>
+        </div>
+
         {/* Filters */}
         <div className="flex space-x-2 mb-6 overflow-x-auto">
           <button 
@@ -177,7 +239,19 @@ const OrderTracking = ({ language, userType }) => {
           {filteredOrders.length === 0 ? (
             <div className="text-center py-12">
               <div className="text-6xl mb-4">📦</div>
-              <p className="text-gray-600 text-lg">No orders found</p>
+              {searchQuery ? (
+                <>
+                  <p className="text-gray-600 text-lg mb-2">No orders match "{searchQuery}"</p>
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className="text-farm-green hover:underline"
+                  >
+                    Clear search
+                  </button>
+                </>
+              ) : (
+                <p className="text-gray-600 text-lg">No orders found</p>
+              )}
             </div>
           ) : (
             filteredOrders.map((order) => (

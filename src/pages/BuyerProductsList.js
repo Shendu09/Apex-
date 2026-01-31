@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getTranslation } from '../translations';
 
@@ -10,9 +10,26 @@ const BuyerProductsList = ({ language }) => {
     return savedCart ? JSON.parse(savedCart) : {};
   });
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [products, setProducts] = useState([]);
 
-  // Sample products with farmer info and ratings
-  const products = [
+  useEffect(() => {
+    loadProducts();
+  }, []);
+
+  const loadProducts = () => {
+    // Load farmer products
+    const farmerProducts = JSON.parse(localStorage.getItem('allAvailableProducts') || '[]');
+    const availableProducts = farmerProducts.filter(p => p.available);
+    
+    // If no farmer products, show default products
+    if (availableProducts.length === 0) {
+      setProducts(getDefaultProducts());
+    } else {
+      setProducts(availableProducts);
+    }
+  };
+
+  const getDefaultProducts = () => [
     {
       id: 1,
       name: 'Fresh Tomatoes',
@@ -20,15 +37,18 @@ const BuyerProductsList = ({ language }) => {
       unit: 'kg',
       image: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=400',
       farmer: 'Ramesh Kumar',
+      farmerName: 'Ramesh Kumar',
       farmerId: 1,
       distance: '2.5 km',
       rating: 4.5,
       reviews: 234,
       inStock: true,
+      available: true,
       quality: 'Premium',
       category: 'vegetables',
       discount: 10,
-      organic: true
+      organic: true,
+      stock: 100
     },
     {
       id: 2,
@@ -37,14 +57,17 @@ const BuyerProductsList = ({ language }) => {
       unit: 'kg',
       image: 'https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=400',
       farmer: 'Suresh Reddy',
+      farmerName: 'Suresh Reddy',
       farmerId: 2,
       distance: '3.2 km',
       rating: 4.8,
       reviews: 189,
       inStock: true,
+      available: true,
       quality: 'Premium',
       category: 'vegetables',
-      organic: true
+      organic: true,
+      stock: 50
     },
     {
       id: 3,
@@ -53,13 +76,16 @@ const BuyerProductsList = ({ language }) => {
       unit: 'kg',
       image: 'https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?w=400',
       farmer: 'Lakshmi Devi',
+      farmerName: 'Lakshmi Devi',
       farmerId: 3,
       distance: '1.8 km',
       rating: 4.7,
       reviews: 156,
       inStock: true,
+      available: true,
       quality: 'Grade A',
-      category: 'vegetables'
+      category: 'vegetables',
+      stock: 75
     },
     {
       id: 4,
@@ -68,15 +94,18 @@ const BuyerProductsList = ({ language }) => {
       unit: 'kg',
       image: 'https://images.unsplash.com/photo-1601493700631-2b16ec4b4716?w=400',
       farmer: 'Ganesh Patel',
+      farmerName: 'Ganesh Patel',
       farmerId: 4,
       distance: '5.0 km',
       rating: 4.9,
       reviews: 312,
       inStock: true,
+      available: true,
       quality: 'Premium',
       category: 'fruits',
       discount: 15,
-      organic: true
+      organic: true,
+      stock: 60
     },
     {
       id: 5,
@@ -85,13 +114,16 @@ const BuyerProductsList = ({ language }) => {
       unit: 'kg',
       image: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400',
       farmer: 'Sunita Reddy',
+      farmerName: 'Sunita Reddy',
       farmerId: 5,
       distance: '4.1 km',
       rating: 4.6,
       reviews: 98,
       inStock: true,
+      available: true,
       quality: 'Grade A',
-      category: 'grains'
+      category: 'grains',
+      stock: 120
     },
     {
       id: 6,
@@ -100,13 +132,16 @@ const BuyerProductsList = ({ language }) => {
       unit: 'kg',
       image: 'https://images.unsplash.com/photo-1568584711271-933f4e68e834?w=400',
       farmer: 'Ramesh Kumar',
+      farmerName: 'Ramesh Kumar',
       farmerId: 1,
       distance: '2.5 km',
       rating: 4.5,
       reviews: 167,
       inStock: true,
+      available: true,
       quality: 'Grade A',
-      category: 'vegetables'
+      category: 'vegetables',
+      stock: 45
     },
     {
       id: 7,
@@ -115,14 +150,17 @@ const BuyerProductsList = ({ language }) => {
       unit: 'dozen',
       image: 'https://images.unsplash.com/photo-1518569656558-1f25e69d93d7?w=400',
       farmer: 'Lakshmi Devi',
+      farmerName: 'Lakshmi Devi',
       farmerId: 3,
       distance: '1.8 km',
       rating: 4.9,
       reviews: 445,
       inStock: true,
+      available: true,
       quality: 'Premium',
       category: 'dairy',
-      organic: true
+      organic: true,
+      stock: 200
     },
     {
       id: 8,
@@ -131,14 +169,17 @@ const BuyerProductsList = ({ language }) => {
       unit: 'dozen',
       image: 'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=400',
       farmer: 'Ganesh Patel',
+      farmerName: 'Ganesh Patel',
       farmerId: 4,
       distance: '5.0 km',
       rating: 4.7,
       reviews: 289,
       inStock: true,
+      available: true,
       quality: 'Grade A',
       category: 'fruits',
-      discount: 5
+      discount: 5,
+      stock: 80
     }
   ];
 
@@ -150,8 +191,8 @@ const BuyerProductsList = ({ language }) => {
     { id: 'dairy', name: 'Dairy', icon: '🥛' }
   ];
 
-  const filteredProducts = selectedCategory === 'all' 
-    ? products 
+  const filteredProducts = selectedCategory === 'all'
+    ? products
     : products.filter(p => p.category === selectedCategory);
 
   const addToCart = (productId) => {
@@ -287,7 +328,7 @@ const BuyerProductsList = ({ language }) => {
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {filteredProducts.map(product => (
-            <div key={product.id} className="bg-white rounded-lg shadow hover:shadow-xl transition-all border border-gray-200">
+            <div key={product.id} className="bg-white rounded-lg shadow hover:shadow-xl transition-all border border-gray-200 relative">
               {/* Product Image */}
               <div className="relative">
                 <img
@@ -307,6 +348,13 @@ const BuyerProductsList = ({ language }) => {
                   </div>
                 )}
               </div>
+
+              {/* Bookmark Icon */}
+              <button className="absolute top-3 right-3 bg-white rounded-full p-2 shadow hover:shadow-lg z-10">
+                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                </svg>
+              </button>
 
               {/* Product Info */}
               <div className="p-3">
@@ -370,13 +418,6 @@ const BuyerProductsList = ({ language }) => {
                     Add
                   </button>
                 )}
-
-                {/* Bookmark Icon */}
-                <button className="absolute top-3 right-3 bg-white rounded-full p-2 shadow hover:shadow-lg">
-                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-                  </svg>
-                </button>
               </div>
             </div>
           ))}
