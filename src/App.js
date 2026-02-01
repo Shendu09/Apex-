@@ -20,6 +20,8 @@ import CheckoutPage from './pages/CheckoutPage';
 import OrderHistory from './pages/OrderHistory';
 import PaymentPage from './pages/PaymentPage';
 import PaymentSuccess from './pages/PaymentSuccess';
+import FarmerDiscovery from './pages/FarmerDiscovery';
+import VoiceAssistant from './components/VoiceAssistant';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -175,6 +177,18 @@ function App() {
             <Navigate to="/" />
           } 
         />
+        <Route           path="/buyer/discover" 
+          element={
+            userType === 'buyer' ? <FarmerDiscovery language={language} userType={userType} /> : 
+            <Navigate to="/" />
+          } 
+        />
+        <Route           path="/buyer/discover" 
+          element={
+            userType === 'buyer' ? <FarmerDiscovery language={language} userType={userType} /> : 
+            <Navigate to="/" />
+          } 
+        />
         <Route 
           path="/buyer/categories" 
           element={
@@ -226,6 +240,11 @@ function App() {
           element={<PaymentSuccess language={language} userType={userType} />} 
         />
       </Routes>
+      
+      {/* Voice Assistant - Available after language selection */}
+      {language && (
+        <VoiceAssistant language={language} userType={userType || 'buyer'} />
+      )}
     </Router>
   );
 }

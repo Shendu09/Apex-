@@ -51,8 +51,8 @@ const FarmerDashboard = ({ language, onLogout }) => {
 
   const menuItems = [
     { icon: '📊', label: t('dashboard'), path: '/farmer/dashboard' },
-    { icon: '📦', label: 'My Products', path: '/farmer/products' },
-    { icon: '🛒', label: 'Orders', path: '/farmer/orders' },
+    { icon: '📦', label: t('myProducts'), path: '/farmer/products' },
+    { icon: '🛒', label: t('viewOrders'), path: '/farmer/orders' },
     { icon: '📍', label: t('track'), path: '/farmer/tracking' },
     { icon: '⭐', label: t('reviews'), path: '/farmer/dashboard' },
   ];
@@ -123,7 +123,7 @@ const FarmerDashboard = ({ language, onLogout }) => {
             >
               <div className="text-3xl mb-2">⏳</div>
               <p className="text-2xl font-bold">{stats.pending}</p>
-              <p className="text-sm opacity-90">Pending Orders</p>
+              <p className="text-sm opacity-90">{t('pendingOrders')}</p>
             </button>
             
             <button
@@ -132,7 +132,7 @@ const FarmerDashboard = ({ language, onLogout }) => {
             >
               <div className="text-3xl mb-2">🚚</div>
               <p className="text-2xl font-bold">{stats.accepted}</p>
-              <p className="text-sm opacity-90">In Progress</p>
+              <p className="text-sm opacity-90">{t('inProgress')}</p>
             </button>
             
             <button
@@ -141,7 +141,7 @@ const FarmerDashboard = ({ language, onLogout }) => {
             >
               <div className="text-3xl mb-2">✅</div>
               <p className="text-2xl font-bold">{stats.delivered}</p>
-              <p className="text-sm opacity-90">Delivered</p>
+              <p className="text-sm opacity-90">{t('delivered')}</p>
             </button>
 
             <button
@@ -150,34 +150,34 @@ const FarmerDashboard = ({ language, onLogout }) => {
             >
               <div className="text-3xl mb-2">📦</div>
               <p className="text-2xl font-bold">{stats.products}</p>
-              <p className="text-sm opacity-90">My Products</p>
+              <p className="text-sm opacity-90">{t('myProducts')}</p>
             </button>
 
             <div className="bg-gradient-to-br from-orange-400 to-orange-600 rounded-xl shadow-lg p-4 text-white">
               <div className="text-3xl mb-2">💰</div>
               <p className="text-2xl font-bold">₹{stats.totalRevenue}</p>
-              <p className="text-sm opacity-90">Total Revenue</p>
+              <p className="text-sm opacity-90">{t('totalRevenue')}</p>
             </div>
           </div>
         </div>
 
         {/* Quick Actions */}
         <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
-          <h3 className="text-xl font-bold text-gray-800 mb-4">Quick Actions</h3>
+          <h3 className="text-xl font-bold text-gray-800 mb-4">{t('quickActions')}</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <button
               onClick={() => navigate('/farmer/products')}
               className="p-6 bg-gradient-to-br from-green-400 to-green-600 rounded-xl text-white hover:shadow-xl transform hover:-translate-y-1 transition-all"
             >
               <div className="text-4xl mb-2">➕</div>
-              <div className="font-semibold">Add Product</div>
+              <div className="font-semibold">{t('addProduct')}</div>
             </button>
             <button
               onClick={() => navigate('/farmer/orders')}
               className="p-6 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl text-white hover:shadow-xl transform hover:-translate-y-1 transition-all"
             >
               <div className="text-4xl mb-2">🛒</div>
-              <div className="font-semibold">View Orders</div>
+              <div className="font-semibold">{t('viewOrders')}</div>
             </button>
             <button
               onClick={() => navigate('/farmer/tracking')}
@@ -199,20 +199,20 @@ const FarmerDashboard = ({ language, onLogout }) => {
         {/* Recent Orders */}
         <div className="bg-white rounded-xl shadow-lg p-6">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-bold text-gray-800">Recent Orders</h3>
+            <h3 className="text-xl font-bold text-gray-800">{t('recentOrders')}</h3>
             <button 
               onClick={() => navigate('/farmer/orders')}
               className="text-farm-green text-sm font-semibold hover:underline"
             >
-              View All
+              {t('viewAll')}
             </button>
           </div>
           
           {recentOrders.length === 0 ? (
             <div className="text-center py-8">
               <div className="text-5xl mb-3">📦</div>
-              <p className="text-gray-600">No orders yet</p>
-              <p className="text-sm text-gray-500">Orders from buyers will appear here</p>
+              <p className="text-gray-600">{t('noOrders')}</p>
+              <p className="text-sm text-gray-500">{t('ordersWillAppear')}</p>
             </div>
           ) : (
             <div className="space-y-3">

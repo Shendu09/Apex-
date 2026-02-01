@@ -347,6 +347,14 @@ const BuyerProductsList = ({ language }) => {
                     🌿 Organic
                   </div>
                 )}
+                
+                {/* AI Quality Badge */}
+                {product.qualityCheck && product.qualityCheck.qualityScore && (
+                  <div className="absolute bottom-2 left-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white px-3 py-1 rounded-full text-xs font-bold flex items-center space-x-1 shadow-lg">
+                    <span>🤖 AI</span>
+                    <span>{product.qualityCheck.qualityScore}/100</span>
+                  </div>
+                )}
               </div>
 
               {/* Bookmark Icon */}
@@ -371,6 +379,23 @@ const BuyerProductsList = ({ language }) => {
                 
                 {/* Product Name */}
                 <h3 className="font-semibold text-gray-800 mb-2 line-clamp-2 h-10">{product.name}</h3>
+                
+                {/* AI Quality Check Info */}
+                {product.qualityCheck && (
+                  <div className="mb-2 bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded p-2">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs font-semibold text-purple-700">AI Quality Check</span>
+                      <span className="text-xs font-bold text-purple-900">{product.qualityCheck.qualityScore}/100</span>
+                    </div>
+                    <div className="flex items-center space-x-1 flex-wrap">
+                      {product.qualityCheck.qualityIndicators && product.qualityCheck.qualityIndicators.slice(0, 2).map((indicator, idx) => (
+                        <span key={idx} className="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded">
+                          ✓ {indicator}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 
                 {/* Quantity Selector */}
                 <select className="w-full border border-gray-300 rounded px-2 py-1 text-sm mb-2 focus:outline-none focus:ring-1 focus:ring-green-500">

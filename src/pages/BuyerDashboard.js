@@ -9,6 +9,7 @@ const BuyerDashboard = ({ language, onLogout }) => {
 
   const menuItems = [
     { icon: '🏠', label: t('dashboard'), path: '/buyer/dashboard' },
+    { icon: '🌍', label: 'Discover Farmers', path: '/buyer/discover' },
     { icon: '👨‍🌾', label: t('viewFarmers'), path: '/buyer/farmers' },
     { icon: '📦', label: t('categories'), path: '/buyer/categories' },
     { icon: '🛒', label: t('cart'), path: '/buyer/cart' },
@@ -97,6 +98,25 @@ const BuyerDashboard = ({ language, onLogout }) => {
         </div>
 
         <div className="max-w-6xl mx-auto px-4 mt-6">
+          {/* Discover Farmers Card */}
+          <div className="mb-6">
+            <div className="bg-gradient-to-r from-blue-500 to-green-500 rounded-2xl p-6 text-white shadow-lg">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-2xl font-bold mb-2">🌍 Discover Local Farmers</h3>
+                  <p className="text-blue-50 mb-4">Find farmers near you and shop directly</p>
+                  <button
+                    onClick={() => navigate('/buyer/discover')}
+                    className="bg-white text-blue-600 px-6 py-3 rounded-lg font-bold hover:bg-blue-50 transition-colors"
+                  >
+                    Explore Now →
+                  </button>
+                </div>
+                <div className="text-6xl hidden md:block">🚜</div>
+              </div>
+            </div>
+          </div>
+
           {/* Shop by Category */}
           <div className="mb-8">
             <div className="flex items-center justify-between mb-4">

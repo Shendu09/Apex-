@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getTranslation } from '../translations';
+import { analyzeProductImage } from '../config/gemini';
 
 const FarmerProductManagement = ({ language }) => {
   const navigate = useNavigate();
@@ -17,8 +18,13 @@ const FarmerProductManagement = ({ language }) => {
     stock: '',
     description: '',
     organic: false,
-    image: ''
+    image: '',
+    qualityCheck: null // AI quality analysis
   });
+
+  const [imagePreview, setImagePreview] = useState(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [analyzingImage, setAnalyzingImage] = useState(false);
 
   useEffect(() => {
     loadProducts();
@@ -90,6 +96,7 @@ const FarmerProductManagement = ({ language }) => {
       organic: product.organic || false,
       image: product.image || ''
     });
+    setImagePreview(product.image || null);
     setShowAddModal(true);
   };
 
@@ -131,6 +138,75 @@ const FarmerProductManagement = ({ language }) => {
       organic: false,
       image: ''
     });
+    setImagePreview(null);
+  };
+
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      processImageFile(file);
+    }
+  };
+
+  const processImageFile = (file) => {
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      alert('Please upload an image file (JPG, PNG, GIF)');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Image size should be less than 5MB');
+      return;
+    }
+
+    // Convert to base64
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+      const base64String = reader.result;
+      setFormData({...formData, image: base64String});
+      setImagePreview(base64String);
+      
+      // Analyze image quality using AI
+      setAnalyzingImage(true);
+      try {
+        const qualityAnalysis = await analyzeProductImage(base64String);
+        if (qualityAnalysis) {
+          setFormData(prev => ({...prev, qualityCheck: qualityAnalysis}));
+          console.log('Quality Analysis:', qualityAnalysis);
+        }
+      } catch (error) {
+        console.error('Error analyzing image:', error);
+      } finally {
+        setAnalyzingImage(false);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files[0];
+    if (file) {
+      processImageFile(file);
+    }
+  };
+
+  const removeImage = () => {
+    setFormData({...formData, image: '', qualityCheck: null});
+    setImagePreview(null);
   };
 
   return (
@@ -362,14 +438,146 @@ const FarmerProductManagement = ({ language }) => {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold mb-2">Image URL (Optional)</label>
-                <input
-                  type="url"
-                  value={formData.image}
-                  onChange={(e) => setFormData({...formData, image: e.target.value})}
-                  className="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:border-farm-green outline-none"
-                  placeholder="https://example.com/image.jpg"
-                />
+                <label className="block text-sm font-semibold mb-2">Product Image (Optional)</label>
+                
+                {/* Image Upload Area */}
+                <div 
+                  className={`border-2 border-dashed rounded-lg p-6 text-center transition-all ${
+                    isDragging 
+                      ? 'border-farm-green bg-green-50' 
+                      : 'border-gray-300 hover:border-farm-green hover:bg-gray-50'
+                  }`}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                >
+                  {imagePreview || formData.image ? (
+                    // Image Preview with Quality Analysis
+                    <div className="relative">
+                      <img 
+                        src={imagePreview || formData.image} 
+                        alt="Product preview" 
+                        className="max-h-48 mx-auto rounded-lg shadow-md"
+                      />
+                      <button
+                        type="button"
+                        onClick={removeImage}
+                        className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-2 hover:bg-red-600 shadow-lg"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                      
+                      {/* AI Quality Analysis Display */}
+                      {analyzingImage && (
+                        <div className="mt-4 bg-blue-50 border-2 border-blue-200 rounded-lg p-4">
+                          <div className="flex items-center justify-center space-x-2">
+                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+                            <p className="text-sm text-blue-600 font-semibold">AI is analyzing image quality...</p>
+                          </div>
+                        </div>
+                      )}
+                      
+                      {formData.qualityCheck && !analyzingImage && (
+                        <div className="mt-4 bg-gradient-to-r from-green-50 to-blue-50 border-2 border-green-200 rounded-lg p-4">
+                          <div className="flex items-center justify-between mb-3">
+                            <h4 className="text-sm font-bold text-gray-800">🤖 AI Quality Check</h4>
+                            <div className="flex items-center space-x-1">
+                              <span className="text-2xl font-bold text-green-600">{formData.qualityCheck.qualityScore}</span>
+                              <span className="text-xs text-gray-600">/100</span>
+                            </div>
+                          </div>
+                          
+                          <div className="grid grid-cols-2 gap-2 mb-3">
+                            <div className="bg-white rounded p-2">
+                              <p className="text-xs text-gray-600">Freshness</p>
+                              <p className={`text-sm font-semibold ${
+                                formData.qualityCheck.freshness === 'Excellent' ? 'text-green-600' :
+                                formData.qualityCheck.freshness === 'Good' ? 'text-blue-600' :
+                                formData.qualityCheck.freshness === 'Fair' ? 'text-yellow-600' : 'text-red-600'
+                              }`}>
+                                {formData.qualityCheck.freshness}
+                              </p>
+                            </div>
+                            <div className="bg-white rounded p-2">
+                              <p className="text-xs text-gray-600">Appearance</p>
+                              <p className={`text-sm font-semibold ${
+                                formData.qualityCheck.appearance === 'Excellent' ? 'text-green-600' :
+                                formData.qualityCheck.appearance === 'Good' ? 'text-blue-600' :
+                                formData.qualityCheck.appearance === 'Fair' ? 'text-yellow-600' : 'text-red-600'
+                              }`}>
+                                {formData.qualityCheck.appearance}
+                              </p>
+                            </div>
+                          </div>
+                          
+                          {formData.qualityCheck.qualityIndicators && formData.qualityCheck.qualityIndicators.length > 0 && (
+                            <div className="mb-2">
+                              <p className="text-xs text-gray-600 mb-1">Quality Indicators:</p>
+                              <div className="flex flex-wrap gap-1">
+                                {formData.qualityCheck.qualityIndicators.map((indicator, idx) => (
+                                  <span key={idx} className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
+                                    ✓ {indicator}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                          
+                          {formData.qualityCheck.recommendation && (
+                            <div className="mt-2 text-xs text-gray-700 bg-white rounded p-2">
+                              <strong>Recommendation:</strong> {formData.qualityCheck.recommendation}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                      
+                      <p className="text-sm text-gray-600 mt-3">Click the × to remove and upload a different image</p>
+                    </div>
+                  ) : (
+                    // Upload Button
+                    <div>
+                      <div className="mx-auto w-16 h-16 mb-4 text-gray-400">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} 
+                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" 
+                          />
+                        </svg>
+                      </div>
+                      <label className="cursor-pointer">
+                        <span className="inline-block bg-farm-green text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors">
+                          📎 Choose Image
+                        </span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageUpload}
+                          className="hidden"
+                        />
+                      </label>
+                      <p className="text-sm text-gray-500 mt-3">or drag and drop an image here</p>
+                      <p className="text-xs text-gray-400 mt-1">JPG, PNG, GIF (max 5MB)</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Optional: URL Input as Alternative */}
+                <div className="mt-3">
+                  <details className="text-sm">
+                    <summary className="cursor-pointer text-gray-600 hover:text-farm-green">Or enter image URL manually</summary>
+                    <input
+                      type="url"
+                      value={formData.image.startsWith('data:') ? '' : formData.image}
+                      onChange={(e) => {
+                        setFormData({...formData, image: e.target.value});
+                        setImagePreview(e.target.value);
+                      }}
+                      className="w-full mt-2 border-2 border-gray-300 rounded-lg px-4 py-2 focus:border-farm-green outline-none text-sm"
+                      placeholder="https://example.com/image.jpg"
+                    />
+                  </details>
+                </div>
               </div>
 
               <div className="flex items-center space-x-2">
