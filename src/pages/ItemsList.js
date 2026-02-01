@@ -58,6 +58,20 @@ const ItemsList = ({ language, userType }) => {
       { name: 'Red Gram', image: 'https://images.unsplash.com/photo-1616671276441-9c2c9b937a31?w=400&h=400&fit=crop', telugu: 'కందులు', hindi: 'अरहर', tamil: 'துவரம் பருப்பு', kannada: 'ತೊಗರಿ', malayalam: 'തുവര' },
       { name: 'Bengal Gram', image: 'https://images.unsplash.com/photo-1594756202469-9ff9799b2e4e?w=400&h=400&fit=crop', telugu: 'శనగలు', hindi: 'चना', tamil: 'கடலை', kannada: 'ಕಡಲೆ', malayalam: 'കടല' },
     ],
+    dairy: [
+      { name: 'Fresh Milk', image: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400&h=400&fit=crop', telugu: 'పాలు', hindi: 'दूध', tamil: 'பால்', kannada: 'ಹಾಲು', malayalam: 'പാല്' },
+      { name: 'Curd', image: 'https://images.unsplash.com/photo-1571212515416-65e2f27c323c?w=400&h=400&fit=crop', telugu: 'పెరుగు', hindi: 'दही', tamil: 'தயிர்', kannada: 'ಮೊಸರು', malayalam: 'തൈര്' },
+      { name: 'Butter', image: 'https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?w=400&h=400&fit=crop', telugu: 'వెన్న', hindi: 'मक्खन', tamil: 'வெண்ணெய்', kannada: 'ಬೆಣ್ಣೆ', malayalam: 'വെണ്ണ' },
+      { name: 'Ghee', image: 'https://images.unsplash.com/photo-1628088062854-d1870b4553da?w=400&h=400&fit=crop', telugu: 'నెయ్యి', hindi: 'घी', tamil: 'நெய்', kannada: 'ತುಪ್ಪ', malayalam: 'നെയ്യ്' },
+      { name: 'Paneer', image: 'https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=400&h=400&fit=crop', telugu: 'పన్నీర్', hindi: 'पनीर', tamil: 'பன்னீர்', kannada: 'ಪನೀರ್', malayalam: 'പനീർ' },
+      { name: 'Cheese', image: 'https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?w=400&h=400&fit=crop', telugu: 'చీజ్', hindi: 'चीज़', tamil: 'சீஸ்', kannada: 'ಚೀಸ್', malayalam: 'ചീസ്' },
+      { name: 'Buttermilk', image: 'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400&h=400&fit=crop', telugu: 'మజ్జిగ', hindi: 'छाछ', tamil: 'மோர்', kannada: 'ಮಜ್ಜಿಗೆ', malayalam: 'മോര്' },
+      { name: 'Cream', image: 'https://images.unsplash.com/photo-1628088062854-d1870b4553da?w=400&h=400&fit=crop', telugu: 'క్రీమ్', hindi: 'क्रीम', tamil: 'க்ரீம்', kannada: 'ಕ್ರೀಮ್', malayalam: 'ക്രീം' },
+      { name: 'Lassi', image: 'https://images.unsplash.com/photo-1623065422902-30a2d299bbe4?w=400&h=400&fit=crop', telugu: 'లస్సీ', hindi: 'लस्सी', tamil: 'லஸ்ஸி', kannada: 'ಲಸ್ಸಿ', malayalam: 'ലസ്സി' },
+      { name: 'Fresh Eggs', image: 'https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?w=400&h=400&fit=crop', telugu: 'గుడ్లు', hindi: 'अंडे', tamil: 'முட்டை', kannada: 'ಮೊಟ್ಟೆ', malayalam: 'മുട്ട' },
+      { name: 'Yogurt', image: 'https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400&h=400&fit=crop', telugu: 'యోగర్ట్', hindi: 'योगर्ट', tamil: 'யோகர்ட்', kannada: 'ಯೋಗರ್ಟ್', malayalam: 'യോഗർട്ട്' },
+      { name: 'Cottage Cheese', image: 'https://images.unsplash.com/photo-1628088062854-d1870b4553da?w=400&h=400&fit=crop', telugu: 'కాటేజ్ చీజ్', hindi: 'छेना', tamil: 'காடேஜ் சீஸ்', kannada: 'ಕಾಟೇಜ್ ಚೀಸ್', malayalam: 'കോട്ടേജ് ചീസ്' },
+    ],
   };
 
   const items = itemsData[category] || [];

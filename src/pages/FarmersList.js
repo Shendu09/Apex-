@@ -88,7 +88,7 @@ const FarmersList = ({ language }) => {
   ]);
 
   const handleFarmerClick = (farmerId) => {
-    navigate(`/buyer/product/${farmerId}/tomato`);
+    navigate(`/buyer/farmer/${farmerId}/products`);
   };
 
   return (

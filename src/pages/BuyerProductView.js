@@ -1,34 +1,163 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { getTranslation } from '../translations';
 
 const BuyerProductView = ({ language }) => {
   const navigate = useNavigate();
+  const { farmerId, productId } = useParams();
   const t = (key) => getTranslation(language, key);
 
-  const [product] = useState({
-    name: 'Fresh Tomatoes',
-    image: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=600&h=600&fit=crop',
-    price: 30,
-    unit: 'kg',
-    available: 100,
-    freshness: 'Just harvested today',
-    description: 'Premium quality fresh tomatoes directly from farm',
-    farmer: {
-      name: 'Ramesh Kumar',
-      photo: null,
-      rating: 4.8,
-      reviews: 45,
-      location: 'Guntur, AP',
-      distance: '2.5 km',
-      bankAccount: '1234567890',
-      upiId: 'ramesh@upi'
-    },
-    productPhoto: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=600&h=600&fit=crop',
-  });
-
+  const [product, setProduct] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [showReturn, setShowReturn] = useState(false);
+
+  useEffect(() => {
+    // Load product data based on productId
+    loadProduct();
+  }, [productId]);
+
+  const loadProduct = () => {
+    // Try to find product from localStorage or use default products
+    const allProducts = JSON.parse(localStorage.getItem('allAvailableProducts') || '[]');
+    let foundProduct = allProducts.find(p => p.id === parseInt(productId));
+
+    // If not found, use default product data
+    if (!foundProduct) {
+      foundProduct = getDefaultProduct(parseInt(productId));
+    }
+
+    setProduct(foundProduct);
+  };
+
+  const getDefaultProduct = (id) => {
+    const defaultProducts = {
+      1: {
+        id: 1,
+        name: 'Fresh Tomatoes',
+        image: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=600',
+        price: 30,
+        unit: 'kg',
+        available: 100,
+        freshness: 'Just harvested today',
+        description: 'Premium quality fresh tomatoes directly from farm',
+        farmer: 'Ramesh Kumar',
+        farmerName: 'Ramesh Kumar',
+        farmerId: 1,
+        productPhoto: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=600'
+      },
+      2: {
+        id: 2,
+        name: 'Organic Spinach',
+        image: 'https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=600',
+        price: 25,
+        unit: 'kg',
+        available: 50,
+        freshness: 'Freshly picked',
+        description: 'Organic spinach rich in iron and nutrients',
+        farmer: 'Suresh Reddy',
+        farmerName: 'Suresh Reddy',
+        farmerId: 2,
+        productPhoto: 'https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=600'
+      },
+      3: {
+        id: 3,
+        name: 'Fresh Carrots',
+        image: 'https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?w=600',
+        price: 35,
+        unit: 'kg',
+        available: 75,
+        freshness: 'Farm fresh',
+        description: 'Crunchy and sweet carrots loaded with vitamins',
+        farmer: 'Lakshmi Devi',
+        farmerName: 'Lakshmi Devi',
+        farmerId: 3,
+        productPhoto: 'https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?w=600'
+      },
+      4: {
+        id: 4,
+        name: 'Fresh Mangoes',
+        image: 'https://images.unsplash.com/photo-1601493700631-2b16ec4b4716?w=600',
+        price: 120,
+        unit: 'kg',
+        available: 60,
+        freshness: 'Seasonal fresh',
+        description: 'Sweet and juicy Alphonso mangoes',
+        farmer: 'Ganesh Patel',
+        farmerName: 'Ganesh Patel',
+        farmerId: 4,
+        productPhoto: 'https://images.unsplash.com/photo-1601493700631-2b16ec4b4716?w=600'
+      },
+      5: {
+        id: 5,
+        name: 'Basmati Rice',
+        image: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=600',
+        price: 80,
+        unit: 'kg',
+        available: 200,
+        freshness: 'Premium quality',
+        description: 'Aromatic premium basmati rice',
+        farmer: 'Vinay Kumar',
+        farmerName: 'Vinay Kumar',
+        farmerId: 5,
+        productPhoto: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=600'
+      },
+      6: {
+        id: 6,
+        name: 'Fresh Milk',
+        image: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=600',
+        price: 50,
+        unit: 'liter',
+        available: 30,
+        freshness: 'Daily fresh',
+        description: 'Pure farm fresh cow milk',
+        farmer: 'Rajesh Patel',
+        farmerName: 'Rajesh Patel',
+        farmerId: 6,
+        productPhoto: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=600'
+      },
+      7: {
+        id: 7,
+        name: 'Fresh Bananas',
+        image: 'https://images.unsplash.com/photo-1603833665858-e61d17a86224?w=600',
+        price: 40,
+        unit: 'dozen',
+        available: 100,
+        freshness: 'Ripe and ready',
+        description: 'Naturally ripened bananas',
+        farmer: 'Krishna Murthy',
+        farmerName: 'Krishna Murthy',
+        farmerId: 5,
+        productPhoto: 'https://images.unsplash.com/photo-1603833665858-e61d17a86224?w=600'
+      },
+      8: {
+        id: 8,
+        name: 'Fresh Eggs',
+        image: 'https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?w=600',
+        price: 6,
+        unit: 'piece',
+        available: 500,
+        freshness: 'Farm fresh daily',
+        description: 'Free-range chicken eggs',
+        farmer: 'Rajesh Patel',
+        farmerName: 'Rajesh Patel',
+        farmerId: 6,
+        productPhoto: 'https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?w=600'
+      }
+    };
+
+    return defaultProducts[id] || defaultProducts[1];
+  };
+
+  if (!product) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading product...</p>
+        </div>
+      </div>
+    );
+  }
 
   const totalPrice = product.price * quantity;
 
@@ -107,21 +236,17 @@ const BuyerProductView = ({ language }) => {
           <h3 className="text-lg font-bold text-gray-800 mb-4">Farmer Details</h3>
           <div className="flex items-center space-x-4 mb-4">
             <div className="w-16 h-16 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
-              {product.farmer.photo ? (
-                <img src={product.farmer.photo} alt={product.farmer.name} className="w-full h-full object-cover rounded-full" />
-              ) : (
-                <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-                </svg>
-              )}
+              <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+              </svg>
             </div>
             <div className="flex-1">
-              <h4 className="font-bold text-gray-800">{product.farmer.name}</h4>
-              <p className="text-sm text-gray-600">{product.farmer.location} • {product.farmer.distance}</p>
+              <h4 className="font-bold text-gray-800">{product.farmer || product.farmerName || 'Local Farmer'}</h4>
+              <p className="text-sm text-gray-600">Verified Seller</p>
               <div className="flex items-center space-x-1 text-yellow-500 mt-1">
                 <span>⭐</span>
-                <span className="text-gray-800 font-semibold">{product.farmer.rating}</span>
-                <span className="text-gray-600 text-sm">({product.farmer.reviews})</span>
+                <span className="text-gray-800 font-semibold">{product.rating || 4.5}</span>
+                <span className="text-gray-600 text-sm">({product.reviews || 45})</span>
               </div>
             </div>
           </div>
@@ -130,11 +255,11 @@ const BuyerProductView = ({ language }) => {
           <div className="bg-gray-50 rounded-lg p-4 space-y-2">
             <div>
               <p className="text-sm text-gray-600">{t('bankAccount')}</p>
-              <p className="font-mono font-semibold text-gray-800">{product.farmer.bankAccount}</p>
+              <p className="font-mono font-semibold text-gray-800">Available on checkout</p>
             </div>
             <div>
               <p className="text-sm text-gray-600">{t('upiId')}</p>
-              <p className="font-mono font-semibold text-gray-800">{product.farmer.upiId}</p>
+              <p className="font-mono font-semibold text-gray-800">Available on checkout</p>
             </div>
           </div>
         </div>

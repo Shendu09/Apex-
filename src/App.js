@@ -16,6 +16,7 @@ import BuyerProfile from './pages/BuyerProfile';
 import FarmersList from './pages/FarmersList';
 import BuyerProductView from './pages/BuyerProductView';
 import BuyerProductsList from './pages/BuyerProductsList';
+import FarmerProductsPage from './pages/FarmerProductsPage';
 import CheckoutPage from './pages/CheckoutPage';
 import OrderHistory from './pages/OrderHistory';
 import PaymentPage from './pages/PaymentPage';
@@ -174,6 +175,13 @@ function App() {
           path="/buyer/products" 
           element={
             userType === 'buyer' ? <BuyerProductsList language={language} /> : 
+            <Navigate to="/" />
+          } 
+        />
+        <Route 
+          path="/buyer/farmer/:farmerId/products" 
+          element={
+            userType === 'buyer' ? <FarmerProductsPage language={language} /> : 
             <Navigate to="/" />
           } 
         />

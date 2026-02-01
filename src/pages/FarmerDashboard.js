@@ -11,14 +11,42 @@ const FarmerDashboard = ({ language, onLogout }) => {
     totalRevenue: 0,
     products: 0
   });
-  const [recentOrders, setRecentOrders] = useState([]);
-  
+  const [recentOrders, setRecentOrders] = useState([]);  const [notifications, setNotifications] = useState([]);
+  const [showNotifications, setShowNotifications] = useState(false);  
   const navigate = useNavigate();
   const t = (key) => getTranslation(language, key);
 
   useEffect(() => {
     loadDashboardData();
+    loadNotifications();
+    
+    // Check for new notifications every 10 seconds
+    const interval = setInterval(() => {
+      loadNotifications();
+    }, 10000);
+    
+    return () => clearInterval(interval);
   }, []);
+
+  const loadNotifications = () => {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const allNotifications = JSON.parse(localStorage.getItem('farmerNotifications') || '[]');
+    const farmerNotifs = allNotifications.filter(n => n.farmerId === user.id || n.farmerId === 1);
+    setNotifications(farmerNotifs.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
+  };
+
+  const markAsRead = (notificationId) => {
+    const allNotifications = JSON.parse(localStorage.getItem('farmerNotifications') || '[]');
+    const updated = allNotifications.map(n => 
+      n.id === notificationId ? { ...n, read: true } : n
+    );
+    localStorage.setItem('farmerNotifications', JSON.stringify(updated));
+    loadNotifications();
+  };
+
+  const getUnreadCount = () => {
+    return notifications.filter(n => !n.read).length;
+  };
 
   const loadDashboardData = () => {
     // Load orders
@@ -68,13 +96,101 @@ const FarmerDashboard = ({ language, onLogout }) => {
             </svg>
           </button>
           <h1 className="text-xl font-bold">Farm Bridge</h1>
-          <button onClick={() => navigate('/farmer/profile')} className="p-2">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-            </svg>
-          </button>
+          <div className="flex items-center space-x-2">
+            {/* Notifications Bell */}
+            <button 
+              onClick={() => setShowNotifications(!showNotifications)} 
+              className="p-2 relative"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+              </svg>
+              {getUnreadCount() > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                  {getUnreadCount()}
+                </span>
+              )}
+            </button>
+            <button onClick={() => navigate('/farmer/profile')} className="p-2">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+            </button>
+          </div>
         </div>
       </header>
+
+      {/* Notifications Panel */}
+      {showNotifications && (
+        <div className="fixed inset-0 z-50" onClick={() => setShowNotifications(false)}>
+          <div className="absolute inset-0 bg-black opacity-50"></div>
+          <div className="absolute right-0 top-0 bottom-0 w-full md:w-96 bg-white shadow-2xl overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="p-4 bg-farm-green text-white sticky top-0">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-bold">Notifications ({getUnreadCount()} new)</h2>
+                <button onClick={() => setShowNotifications(false)} className="p-2">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            
+            <div className="divide-y">
+              {notifications.length === 0 ? (
+                <div className="p-8 text-center text-gray-500">
+                  <svg className="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                  </svg>
+                  <p className="font-semibold">No notifications yet</p>
+                  <p className="text-sm">You'll see new orders and updates here</p>
+                </div>
+              ) : (
+                notifications.map((notif) => (
+                  <div
+                    key={notif.id}
+                    onClick={() => {
+                      markAsRead(notif.id);
+                      if (notif.orderId) {
+                        setShowNotifications(false);
+                        navigate('/farmer/orders');
+                      }
+                    }}
+                    className={`p-4 cursor-pointer hover:bg-gray-50 transition-colors ${
+                      !notif.read ? 'bg-green-50 border-l-4 border-green-500' : ''
+                    }`}
+                  >
+                    <div className="flex items-start space-x-3">
+                      <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${
+                        notif.type === 'new_order' ? 'bg-green-100' : 'bg-blue-100'
+                      }`}>
+                        <span className="text-xl">
+                          {notif.type === 'new_order' ? '🛒' : '📦'}
+                        </span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-gray-800">{notif.title}</p>
+                        <p className="text-sm text-gray-600 mt-1">{notif.message}</p>
+                        {notif.orderDetails && (
+                          <div className="mt-2 p-2 bg-gray-50 rounded text-xs">
+                            <p className="font-semibold">Items: {notif.orderDetails.items}</p>
+                          </div>
+                        )}
+                        <p className="text-xs text-gray-400 mt-2">
+                          {new Date(notif.createdAt).toLocaleString()}
+                        </p>
+                      </div>
+                      {!notif.read && (
+                        <div className="w-2 h-2 bg-green-500 rounded-full flex-shrink-0"></div>
+                      )}
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Sidebar */}
       {sidebarOpen && (

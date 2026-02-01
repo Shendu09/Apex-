@@ -14,6 +14,11 @@ const PaymentSuccess = ({ language, userType }) => {
   };
 
   useEffect(() => {
+    // Save order and create farmer notifications
+    if (orderData.items && orderData.items.length > 0) {
+      createOrderAndNotifications();
+    }
+
     // Confetti animation effect
     const duration = 3 * 1000;
     const animationEnd = Date.now() + duration;
@@ -28,6 +33,77 @@ const PaymentSuccess = ({ language, userType }) => {
 
     return () => clearInterval(interval);
   }, []);
+
+  const createOrderAndNotifications = () => {
+    const buyer = JSON.parse(localStorage.getItem('user') || '{}');
+    const buyerPhone = JSON.parse(localStorage.getItem('farmBridgeUser') || '{}').phoneNumber;
+
+    // Group items by farmer
+    const farmerOrders = {};
+    orderData.items.forEach(item => {
+      const farmerId = item.farmerId || 1;
+      if (!farmerOrders[farmerId]) {
+        farmerOrders[farmerId] = {
+          farmerId,
+          farmerName: item.farmerName || 'Unknown Farmer',
+          items: [],
+          total: 0
+        };
+      }
+      farmerOrders[farmerId].items.push(item);
+      farmerOrders[farmerId].total += item.price * item.quantity;
+    });
+
+    // Create orders for each farmer
+    const allOrders = JSON.parse(localStorage.getItem('farmerOrders') || '[]');
+    const notifications = JSON.parse(localStorage.getItem('farmerNotifications') || '[]');
+
+    Object.values(farmerOrders).forEach(farmerOrder => {
+      const newOrder = {
+        id: `ORD${Date.now()}-${farmerOrder.farmerId}`,
+        orderId: orderData.orderId,
+        farmerId: farmerOrder.farmerId,
+        farmerName: farmerOrder.farmerName,
+        buyerName: buyer.name || 'Customer',
+        buyerPhone: buyerPhone || '1234567890',
+        items: farmerOrder.items,
+        total: farmerOrder.total,
+        totalPrice: farmerOrder.total,
+        status: 'pending',
+        paymentMethod: orderData.paymentMethod,
+        createdAt: new Date().toISOString(),
+        estimatedDelivery: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString()
+      };
+
+      allOrders.push(newOrder);
+
+      // Create notification for farmer
+      const notification = {
+        id: `NOTIF${Date.now()}-${farmerOrder.farmerId}`,
+        farmerId: farmerOrder.farmerId,
+        type: 'new_order',
+        title: '🛒 New Order Received!',
+        message: `You have a new order from ${buyer.name || 'Customer'}. Order value: ₹${farmerOrder.total}`,
+        orderId: newOrder.orderId,
+        orderDetails: {
+          items: farmerOrder.items.map(item => `${item.name} (${item.quantity} ${item.unit})`).join(', '),
+          total: farmerOrder.total
+        },
+        read: false,
+        createdAt: new Date().toISOString()
+      };
+
+      notifications.push(notification);
+    });
+
+    // Save to localStorage
+    localStorage.setItem('farmerOrders', JSON.stringify(allOrders));
+    localStorage.setItem('farmerNotifications', JSON.stringify(notifications));
+
+    // Clear cart
+    localStorage.removeItem('cart');
+    localStorage.removeItem('cartItems');
+  };
 
   const getPaymentMethodName = (method) => {
     const methods = {
